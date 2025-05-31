@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  client:
+    container_name: client
+    build:
+      context: ./app/client
+    ports:
+      - "8080:80"
+    depends_on:
+      - server
+    volumes:
+      - ./images/:/app/static/images
+      - static-files:/app/client/static
+    networks:
+      - my_network
+    links:
+      - server
+
+  server:
+    container_name: server
+    build:
+      context: ./app/server
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./images/:/server/images
+      - static-files:/app/client/static
+    networks:
+      - my_network
+    restart: always
+
+  db:
+    container_name: db
+    image: postgres
+    environment:
+      - POSTGRES_DB=admin
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -d admin -U admin" ]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
+    ports:
+      - '5432:5432'
+    volumes:
+      - ./db/:/var/lib/postgresql/data
+    networks:
+      - my_network
+    restart: always
+
+networks:
+  my_network:
+    driver: bridge
+
+volumes:
+  static-files:

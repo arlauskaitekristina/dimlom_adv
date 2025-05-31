@@ -1,0 +1,17 @@
+services:
+  db:
+    container_name: db_test
+    image: postgres:latest
+    environment:
+      - POSTGRES_USER=admin1
+      - POSTGRES_PASSWORD=admin1
+      - POSTGRES_DB=admin1
+    ports:
+      - '5432:5432'
+    networks:
+      - my_network
+    restart: always
+
+networks:
+   my_network:
+     driver: bridge
