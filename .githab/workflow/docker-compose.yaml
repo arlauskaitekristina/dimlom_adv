@@ -17,6 +17,7 @@ services:
     links:
       - server
 
+
   server:
     container_name: server
     build:
